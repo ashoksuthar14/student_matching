@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Matching</title>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --panel: #0f172a;
+        --card: #0d1b33;
+        --glass: rgba(255,255,255,0.06);
+        --primary: #4ea8ff;
+        --primary-2: #7cc3ff;
+        --accent: #00e0ff;
+        --text: #eaf2ff;
+        --muted:#9fb3cc;
+        --border:#1f3355;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background: radial-gradient(1200px 700px at 10% -10%, #0e1a33 0%, #0b1220 60%); color: var(--text); }
+      .container { max-width: 1200px; margin: 0 auto; padding: 28px; }
+      .header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+      .title { display:flex; align-items:center; gap:14px; }
+      .logo { width:46px; height:46px; border-radius:14px; background:
+        conic-gradient(from 210deg, var(--primary), var(--accent), var(--primary-2), var(--primary));
+        box-shadow: 0 12px 40px rgba(78,168,255,0.35);
+        animation: spin 12s linear infinite paused;}
+      .logo:hover { animation-play-state: running; }
+      @keyframes spin { to { transform: rotate(360deg);} }
+      h1 { margin:0; font-size: 30px; letter-spacing: 0.3px; }
+      .sub { color: var(--muted); }
+
+      .card { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); backdrop-filter: blur(10px); transition: transform .2s ease, box-shadow .2s ease; }
+      .card:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.35); }
+      .badge { display:inline-flex; align-items:center; gap:8px; font-weight:700; color: var(--primary-2); }
+      .pill { padding: 5px 12px; border-radius: 999px; background: rgba(78,168,255,0.15); color: var(--primary-2); font-size: 12px; }
+      .error { color: #ffd9d9; margin: 12px 0; }
+      .students { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+      .muted { color: var(--muted); }
+      .match { margin: 18px 0; padding: 18px; background: linear-gradient(180deg, rgba(78,168,255,0.08), rgba(255,255,255,0.03)); border: 1px solid var(--border); border-radius: 16px; position: relative; overflow: hidden; }
+      .match::after { content:""; position:absolute; inset:0; background: radial-gradient(600px 200px at 10% -10%, rgba(78,168,255,.12), transparent 60%); pointer-events:none; }
+      .match-title { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+      .sim { color: var(--primary-2); font-weight: 700; }
+      .footer { margin-top: 24px; color: var(--muted); font-size: 14px; }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .fade-in { animation: fade .5s ease both; }
+        @keyframes fade { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: translateY(0);} }
+      }
+    </style>
+  </head>
+  <body class="bg-shapes">
+    <div class="container">
+      <div class="header">
+        <div class="title">
+          <div class="logo"></div>
+          <div>
+            <h1>Student Matching</h1>
+            <div class="sub">Find the best peer pairing based on concise summaries</div>
+          </div>
+        </div>
+      </div>
+
+      {% if error %}
+        <div class="card error fade-in">{{ error }}</div>
+      {% endif %}
+
+      {% if students and match_pair %}
+        <div class="match fade-in">
+          <div class="match-title">
+            <div class="badge">
+              <span class="pill">Top Match</span>
+              <span><strong>{{ match_pair[0].name }}</strong> ↔ <strong>{{ match_pair[1].name }}</strong></span>
+            </div>
+            {% if similarity is not none %}
+              <div class="sim">Similarity: {{ '%.3f'|format(similarity) }}</div>
+            {% endif %}
+          </div>
+          {% if match_reason %}
+            <div class="card" style="margin-top:10px;">
+              <strong>Why this is a great match</strong>
+              <p class="muted" style="margin:6px 0 0;">{{ match_reason }}</p>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <h2 style="margin:16px 0 8px;">All Students</h2>
+      {% if students %}
+        <div class="students">
+          {% for s in students %}
+            <div class="card fade-in">
+              <h3>{{ s.name }}</h3>
+              <p class="muted">{{ s.summary }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="muted">No students available.</p>
+      {% endif %}
+
+      <div class="footer">Set <code>GEMINI_API_KEY</code> in your environment to enable matching.</div>
+    </div>
+  </body>
+  </html>
+
+
